@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class ResponseBlogDto {
   @Expose()
@@ -14,19 +15,43 @@ export class ResponseBlogDto {
   category: string;
 
   @Expose()
+  tags: string[];
+
+  @Expose()
   created_at: Date;
 
   @Expose()
-  updated_at?: Date;
+  updated_at: Date;
 }
 
 export class CreateBlogDto {
-  @Expose()
+  @IsString()
   title: string;
 
-  @Expose()
+  @IsString()
   content: string;
 
-  @Expose()
+  @IsString()
   category: string;
+
+  @IsString({ each: true })
+  tags: string[];
+}
+
+export class UpdateBlogDto {
+  @IsString()
+  @IsOptional()
+  title?: string;
+
+  @IsString()
+  @IsOptional()
+  content?: string;
+
+  @IsString()
+  @IsOptional()
+  category?: string;
+
+  @IsString({ each: true })
+  @IsOptional()
+  tags?: string[];
 }

@@ -15,11 +15,12 @@ export class Blog {
   @Column()
   category: string;
 
+  @Column('simple-array', { nullable: true })
+  tags: string[];
+
   @Column()
   created_at: Date;
 
-  @Column({
-    nullable: true,
-  })
-  updated_at?: Date;
+  @Column()
+  updated_at: Date;
 }

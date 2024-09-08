@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CreateBlogDto, ResponseBlogDto, UpdateBlogDto } from './blogs.dto';
 import { BlogsService } from './blogs.service';
@@ -16,21 +18,27 @@ export class BlogsController {
   constructor(private blogsService: BlogsService) {}
 
   @Get()
-  findAll() {
-    return this.blogsService.findAll();
+  findAll(@Query('term') term: string) {
+    return this.blogsService.findAll(term || '');
   }
 
   @Post()
   @HttpCode(201)
-  async create(@Body() createBlogDto: CreateBlogDto): Promise<ResponseBlogDto> {
-    return await this.blogsService.create(createBlogDto);
+  create(@Body() createBlogDto: CreateBlogDto): Promise<ResponseBlogDto> {
+    return this.blogsService.create(createBlogDto);
   }
 
   @Put(':id')
-  async update(
+  update(
     @Param('id') id: typeof Blog.prototype.id,
     @Body() updateBlogDto: UpdateBlogDto,
   ): Promise<ResponseBlogDto> {
-    return await this.blogsService.update(id, updateBlogDto);
+    return this.blogsService.update(id, updateBlogDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  delete(@Param('id') id: typeof Blog.prototype.id): Promise<void> {
+    return this.blogsService.delete(id);
   }
 }

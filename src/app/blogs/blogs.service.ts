@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Blog } from './blog.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateBlogDto, UpdateBlogDto } from './blogs.dto';
 
 @Injectable()
@@ -11,8 +11,19 @@ export class BlogsService {
     private blogsRepository: Repository<Blog>,
   ) {}
 
-  findAll(): Promise<Blog[]> {
-    return this.blogsRepository.find();
+  findAll(term: string): Promise<Blog[]> {
+    return this.blogsRepository.find({
+      where: [
+        { title: Like(`%${term}%`) },
+        { content: Like(`%${term}%`) },
+        { category: Like(`%${term}%`) },
+        { tags: Like(`%${term}%`) },
+      ],
+    });
+  }
+
+  search(term: string): Promise<Blog[]> {
+    return this.blogsRepository.find({});
   }
 
   async create(blog: CreateBlogDto): Promise<Blog> {
@@ -33,5 +44,13 @@ export class BlogsService {
     const updatedBlog = this.blogsRepository.merge(existingBlog, blog);
 
     return this.blogsRepository.save(updatedBlog);
+  }
+
+  async delete(id: typeof Blog.prototype.id): Promise<void> {
+    const existingBlog = await this.blogsRepository.findOneBy({ id });
+    if (!existingBlog)
+      throw new NotFoundException(`Blog with id ${id} not found`);
+
+    await this.blogsRepository.remove(existingBlog);
   }
 }
